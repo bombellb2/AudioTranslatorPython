@@ -1,16 +1,34 @@
-# This is a sample Python script.
+from fastapi import FastAPI, UploadFile
+from faster_whisper import WhisperModel
+import tempfile
+import uvicorn
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = FastAPI()
+
+model = WhisperModel(
+    "small",
+    device="cpu",
+    compute_type="int8"
+)
+
+@app.post("/transcribe")
+async def transcribe(file: UploadFile):
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        tmp.write(await file.read())
+        temp_path = tmp.name
+
+    segments, info = model.transcribe(
+        temp_path,
+        language="pl"
+    )
+
+    text = " ".join(segment.text for segment in segments)
+
+    return {
+        "text": text
+    }
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
