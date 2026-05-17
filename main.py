@@ -6,10 +6,11 @@ import uvicorn
 app = FastAPI()
 
 model = WhisperModel(
-    "small",
+    "medium",
     device="cpu",
     compute_type="int8"
 )
+
 
 @app.post("/transcribe")
 async def transcribe(file: UploadFile):
