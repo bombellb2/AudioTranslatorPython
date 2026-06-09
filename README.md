@@ -14,6 +14,7 @@ API will be available at `http://127.0.0.1:8000`.
 ## Docker Compose
 
 ```powershell
+docker compose down -v
 docker compose up --build
 ```
 
